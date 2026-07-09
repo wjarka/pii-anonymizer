@@ -1,0 +1,50 @@
+appId: tools.pii.desktop
+productName: pii.tools
+copyright: Copyright © 2026 pii.tools
+
+asar: true
+npmRebuild: false
+publish: null
+
+directories:
+  app: .electron-build/app
+  output: release/desktop
+  buildResources: electron/resources
+
+files:
+  - '**/*'
+  - '!node_modules/**'
+
+mac:
+  category: public.app-category.productivity
+  target:
+    - target: dmg
+      arch:
+        - x64
+        - arm64
+    - target: zip
+      arch:
+        - x64
+        - arm64
+  artifactName: pii-tools-${version}-mac-${arch}.${ext}
+
+win:
+  target:
+    - target: nsis
+      arch:
+        - x64
+    - target: portable
+      arch:
+        - x64
+
+nsis:
+  oneClick: false
+  perMachine: false
+  allowToChangeInstallationDirectory: true
+  createDesktopShortcut: true
+  createStartMenuShortcut: true
+  shortcutName: pii.tools
+  artifactName: pii-tools-${version}-win-${arch}-setup.${ext}
+
+portable:
+  artifactName: pii-tools-${version}-win-${arch}-portable.${ext}
