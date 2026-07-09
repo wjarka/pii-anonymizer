@@ -13,7 +13,7 @@ import {
 // `worker: true`) and ONNX Runtime Web setup, so we don't manage either.
 // Pinning ORT WASM to jsDelivr keeps versions in sync between main thread and
 // worker — the SDK's architecture doc explicitly recommends this.
-const DEFAULT_WASM_PATHS = 'https://cdn.jsdelivr.net/npm/onnxruntime-web@1.22.0/dist/';
+const DEFAULT_WASM_PATHS = 'https://cdn.jsdelivr.net/npm/onnxruntime-web@1.25.1/dist/';
 
 function positiveNumber(value) {
   const n = Number(value);

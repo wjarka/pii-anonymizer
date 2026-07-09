@@ -6,7 +6,9 @@ export const CACHE_KEY = `ocr-${ENGINE}`;
 // the URL explicit so the app can pre-download/cache it with progress before
 // the SDK's worker initializes the model sessions.
 export const TEXT_DETECTION_MODEL_NAME = 'PP-OCRv5_mobile_det';
-export const TEXT_DETECTION_MODEL_URL = 'https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/PP-OCRv5_mobile_det_onnx.tar';
+export const TEXT_DETECTION_MODEL_URL = resolvePublicAssetUrl(
+  `ocr-models/${TEXT_DETECTION_MODEL_NAME}_onnx.tar`,
+);
 
 // PaddleOCR's default rec model is Chinese+English. We override it with the
 // Latin PP-OCRv5 mobile recognizer (ONNX-converted from

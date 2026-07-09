@@ -1,3 +1,5 @@
+import { readFile } from 'node:fs/promises';
+
 import { createPaddleEngine } from './paddle.js';
 import { OcrFailedError, OcrCancelledError } from './errors.js';
 import {
@@ -68,6 +70,24 @@ describe('createPaddleEngine', () => {
     await engine.run({ kind: 'fake' });
     expect(calls.lastOptions.worker).toBe(true);
     expect(calls.lastOptions.ortOptions).toEqual({ backend: 'wasm', wasmPaths: '/local/' });
+  });
+
+  it('loads ORT WASM assets from the same release as the JS runtime', async () => {
+    const { sdk, calls } = fakeSdkFactory(async () => okResult([]));
+    const engine = createTestEngine({ loadSdk: async () => sdk });
+
+    await engine.run({ kind: 'fake' });
+
+    expect(calls.lastOptions.ortOptions.wasmPaths)
+      .toBe('https://cdn.jsdelivr.net/npm/onnxruntime-web@1.25.1/dist/');
+  });
+
+  it('pins the ORT JS dependency to the exact WASM asset release', async () => {
+    const packageJson = JSON.parse(
+      await readFile(new URL('../../package.json', import.meta.url), 'utf8')
+    );
+
+    expect(packageJson.dependencies['onnxruntime-web']).toBe('1.25.1');
   });
 
   it('overrides the rec model with the Latin PP-OCRv5 build by default', async () => {
