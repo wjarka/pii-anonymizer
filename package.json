@@ -1,8 +1,12 @@
 {
   "name": "pii-anonymizer",
+  "version": "0.1.0",
+  "description": "Browser-based PII anonymizer for Polish legal documents.",
+  "productName": "pii.tools",
   "private": true,
   "license": "Apache-2.0",
   "type": "module",
+  "main": "electron/main.js",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
@@ -18,7 +22,17 @@
     "bench:compare": "node bench/compare.js",
     "bench:list": "node bench/compare.js --list",
     "test:e2e": "playwright test --config=e2e/playwright.config.js",
-    "test:e2e:startup": "playwright test --config=e2e/playwright.production.config.js"
+    "test:e2e:startup": "playwright test --config=e2e/playwright.production.config.js",
+    "electron:build-renderer": "node scripts/build-electron-renderer.js",
+    "electron:preview": "npm run electron:build-renderer && electron electron/main.js",
+    "electron:stage": "node scripts/prepare-electron-app.js",
+    "electron:pack": "npm run electron:build-renderer && npm run electron:stage && electron-builder --dir --config electron-builder.yml",
+    "electron:dist": "npm run electron:build-renderer && npm run electron:stage && electron-builder --config electron-builder.yml",
+    "electron:dist:mac": "npm run electron:build-renderer && npm run electron:stage && electron-builder --mac dmg zip --config electron-builder.yml",
+    "electron:dist:mac:x64": "npm run electron:build-renderer && npm run electron:stage && electron-builder --mac dmg zip --x64 --config electron-builder.yml",
+    "electron:dist:mac:arm64": "npm run electron:build-renderer && npm run electron:stage && electron-builder --mac dmg zip --arm64 --config electron-builder.yml",
+    "electron:dist:win": "npm run electron:build-renderer && npm run electron:stage && electron-builder --win nsis portable --x64 --config electron-builder.yml",
+    "test:e2e:electron": "npm run electron:build-renderer && npm run electron:stage && playwright test --config=e2e/playwright.electron.config.js"
   },
   "dependencies": {
     "@huggingface/transformers": "^3.4.0",
@@ -27,7 +41,7 @@
     "heic-to": "^1.4.2",
     "mammoth": "^1.12.0",
     "onnxruntime-node": "^1.24.3",
-    "onnxruntime-web": "^1.25.1",
+    "onnxruntime-web": "1.25.1",
     "pdf-lib": "^1.17.1",
     "pdfjs-dist": "^5.7.284",
     "sentencex": "^1.0.20",
@@ -36,6 +50,8 @@
   "devDependencies": {
     "@napi-rs/canvas": "^0.1.100",
     "@playwright/test": "^1.59.1",
+    "electron": "^43.1.0",
+    "electron-builder": "^26.15.3",
     "jsdom": "^29.1.1",
     "playwright": "^1.59.1",
     "typescript": "^6.0.3",

@@ -16,3 +16,7 @@ bench/.user-data/
 # Playwright e2e artifacts (root-level outputs from `npm run test:e2e`)
 /test-results/
 /playwright-report/
+
+# Electron packaging outputs
+.electron-build/
+release/desktop/
