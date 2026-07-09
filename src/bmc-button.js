@@ -14,9 +14,13 @@ const BUTTON = {
 const slots = [...document.querySelectorAll('[data-bmc-button]')];
 
 if (slots.length) {
-  loadBmcWidget()
-    .then(renderButtons)
-    .catch(decorateFallbackLinks);
+  if (Boolean(window.piiDesktop)) {
+    decorateFallbackLinks();
+  } else {
+    loadBmcWidget()
+      .then(renderButtons)
+      .catch(decorateFallbackLinks);
+  }
 }
 
 function loadBmcWidget() {
