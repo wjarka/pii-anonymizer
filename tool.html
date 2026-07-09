@@ -17,15 +17,21 @@
       Włącz WebNN dla szybszej anonimizacji
     </button>
     <div id="webnn-hint-panel" class="webnn-hint-panel" hidden>
-      <h3>Włącz WebNN dla szybszej anonimizacji</h3>
-      <p>Anonimizacja może działać kilkukrotnie szybciej z WebNN — interfejsem do uruchamiania modeli na GPU. WebNN to funkcja eksperymentalna w Chrome i Edge.</p>
-      <ol>
-        <li>Otwórz Chrome (wersja 128+) lub Edge.</li>
-        <li>Wklej w pasek adresu: <code>chrome://flags/#web-machine-learning-neural-network</code></li>
-        <li>Ustaw flagę na <strong>Enabled</strong>.</li>
-        <li>Zrestartuj przeglądarkę.</li>
-      </ol>
-      <p class="webnn-hint-note">Firefox i Safari nie wspierają WebNN. Wymagany komputer z GPU.</p>
+      <div data-webnn-copy="browser">
+        <h3>Włącz WebNN dla szybszej anonimizacji</h3>
+        <p>Anonimizacja może działać kilkukrotnie szybciej z WebNN — interfejsem do uruchamiania modeli na GPU. WebNN to funkcja eksperymentalna w Chrome i Edge.</p>
+        <ol>
+          <li>Otwórz Chrome (wersja 128+) lub Edge.</li>
+          <li>Wklej w pasek adresu: <code>chrome://flags/#web-machine-learning-neural-network</code></li>
+          <li>Ustaw flagę na <strong>Enabled</strong>.</li>
+          <li>Zrestartuj przeglądarkę.</li>
+        </ol>
+        <p class="webnn-hint-note">Firefox i Safari nie wspierają WebNN. Wymagany komputer z GPU.</p>
+      </div>
+      <div data-webnn-copy="desktop" hidden>
+        <h3>WebNN jest niedostępne na tym urządzeniu</h3>
+        <p>Aplikacja użyje trybu WASM. Nie musisz zmieniać ustawień Chrome ani Edge.</p>
+      </div>
       <button type="button" id="webnn-hint-close" class="btn btn-sm">Zamknij</button>
     </div>
   </div>

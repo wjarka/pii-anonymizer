@@ -9,6 +9,10 @@ describe('resolveBasePath', () => {
     expect(resolveBasePath({ VITE_BASE_PATH: '/pii-anonymizer/' })).toBe('/pii-anonymizer/');
   });
 
+  it('preserves a relative Electron base path', () => {
+    expect(resolveBasePath({ VITE_BASE_PATH: './' })).toBe('./');
+  });
+
   it('treats an empty base path as the root default', () => {
     expect(resolveBasePath({ VITE_BASE_PATH: '' })).toBe('/');
   });

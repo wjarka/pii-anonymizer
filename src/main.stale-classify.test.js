@@ -140,8 +140,9 @@ function addPasteSourceWithText(text) {
   textarea.dispatchEvent(new Event('input', { bubbles: true }));
 }
 
-function clickAnonymize() {
+async function clickAnonymize() {
   document.querySelector('[data-action="anonymize"]').click();
+  await Promise.resolve();
 }
 
 function classifyMessages(worker) {
@@ -191,7 +192,7 @@ describe('classify result text snapshots', () => {
     const { worker, tools } = await bootApp();
     addPasteSourceWithText(TEXT_AT_DISPATCH);
 
-    clickAnonymize();
+    await clickAnonymize();
     expect(worker.messages).toContainEqual({
       type: 'classify',
       id: 's2',
@@ -214,7 +215,7 @@ describe('classify result text snapshots', () => {
     const { worker, tools } = await bootApp();
     addPasteSourceWithText(TEXT_AT_DISPATCH);
 
-    clickAnonymize();
+    await clickAnonymize();
     worker.emit({ type: 'result', id: 's2', data: [PERSON_ENTITY_FOR_DISPATCH_TEXT] });
 
     expect(document.querySelector('[data-testid="source-status-s2"]').dataset.status).toBe('ready');
@@ -235,7 +236,7 @@ describe('classify result text snapshots', () => {
     addPasteSourceWithText(DOC_B_TEXT);
     renameActiveSourceTo('PESEL_44051401458.docx');
     renameActiveMcpLabelTo('Źródło MCP B');
-    clickAnonymize();
+    await clickAnonymize();
     worker.emit({ type: 'result', id: 's2', data: [PERSON_ENTITY_FOR_DISPATCH_TEXT] });
     worker.emit({ type: 'result', id: 's3', data: [PERSON_ENTITY_FOR_DOC_B] });
 
@@ -266,7 +267,7 @@ describe('re-anonymize source selection', () => {
     addPasteSourceWithText(TEXT_AT_DISPATCH);
     addPasteSourceWithText(DOC_B_TEXT);
 
-    clickAnonymize();
+    await clickAnonymize();
     expect(classifyMessages(worker)).toEqual([
       { type: 'classify', id: 's2', text: TEXT_AT_DISPATCH },
     ]);
@@ -298,7 +299,7 @@ describe('re-anonymize source selection', () => {
 
     const anonymizeButton = document.querySelector('[data-action="anonymize"]');
     expect(anonymizeButton.textContent).toBe('Anonimizuj ponownie');
-    clickAnonymize();
+    await clickAnonymize();
 
     expect(classifyMessages(worker)).toEqual([
       { type: 'classify', id: 's2', text: TEXT_AT_DISPATCH },
@@ -381,7 +382,7 @@ describe('queued source removal', () => {
     addPasteSourceWithText(TEXT_AT_DISPATCH);
     addPasteSourceWithText(SECOND_QUEUED_TEXT);
 
-    clickAnonymize();
+    await clickAnonymize();
     expect(classifyMessages(worker)).toEqual([
       { type: 'classify', id: 's2', text: TEXT_AT_DISPATCH },
     ]);

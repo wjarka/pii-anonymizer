@@ -18,6 +18,7 @@ import {
 } from './ui/file-import-progress-state.js';
 import { extractText } from './file-import/index.js';
 import { holdBackgroundLock } from './background-lock.js';
+import { holdDesktopActiveWork, setDesktopActiveWork } from './desktop-active-work.js';
 import { backfillOccurrencesStep } from './pipeline/steps/backfill.js';
 import {
   ENTITY_CATEGORIES,
@@ -101,6 +102,11 @@ const webnnHint = document.getElementById('webnn-hint');
 const webnnHintTrigger = document.getElementById('webnn-hint-trigger');
 const webnnHintPanel = document.getElementById('webnn-hint-panel');
 const webnnHintClose = document.getElementById('webnn-hint-close');
+const webnnBrowserCopy = document.querySelector('[data-webnn-copy="browser"]');
+const webnnDesktopCopy = document.querySelector('[data-webnn-copy="desktop"]');
+const isDesktop = Boolean(window.piiDesktop);
+if (webnnBrowserCopy) webnnBrowserCopy.hidden = isDesktop;
+if (webnnDesktopCopy) webnnDesktopCopy.hidden = !isDesktop;
 const webmcpControlRoot = document.getElementById('webmcp-control-root');
 const allowGpuInput = document.getElementById('allow-gpu-checkbox');
 const preloadOcrInput = document.getElementById('preload-ocr-checkbox');
@@ -574,6 +580,7 @@ async function addSourceFromFile(file, batch = {}) {
 
   // Keeps OCR/import alive while the tab is hidden (see background-lock.js).
   const releaseImportLock = holdBackgroundLock('pii-file-import');
+  const releaseDesktopImportWork = await holdDesktopActiveWork('pii-file-import');
   try {
     const { text, meta } = await extractText(file, { onProgress, onModelLoad, signal: fileImportAbortController?.signal });
     const s = sources.find((x) => x.id === id);
@@ -601,6 +608,7 @@ async function addSourceFromFile(file, batch = {}) {
     if (isLastInBatch) scheduleFileImportProgressHide();
   } finally {
     releaseImportLock();
+    await releaseDesktopImportWork();
     inFlightFileImportIds.delete(id);
     if (isLastInBatch) {
       if (!isAnyFileImportInFlight() && !isAnyClassifyInFlight()) setText(modelStatusEls, '');
@@ -1049,6 +1057,7 @@ const pendingClassifies = [];
 // Held for the whole classify batch so hidden-tab freezing (Edge sleeping
 // tabs, Chrome tab freeze) and intensive timer throttling don't stall it.
 let releaseClassifyLock = null;
+let desktopClassifyActive = false;
 
 function syncClassifyLock() {
   if (isAnyClassifyInFlight()) {
@@ -1056,6 +1065,10 @@ function syncClassifyLock() {
   } else if (releaseClassifyLock) {
     releaseClassifyLock();
     releaseClassifyLock = null;
+  }
+  if (!isAnyClassifyInFlight() && desktopClassifyActive) {
+    desktopClassifyActive = false;
+    void setDesktopActiveWork('pii-anonymize', false);
   }
 }
 
@@ -1272,7 +1285,7 @@ copyAllBtns.forEach(btn => btn.addEventListener('click', async () => {
   }
 }));
 
-anonymizeBtns.forEach(btn => btn.addEventListener('click', () => {
+anonymizeBtns.forEach(btn => btn.addEventListener('click', async () => {
   for (const s of sources) {
     if (sourcesList.getMode(s.id) === 'text') {
       const live = sourcesList.getText(s.id);
@@ -1305,6 +1318,10 @@ anonymizeBtns.forEach(btn => btn.addEventListener('click', () => {
   setText(modelStatusEls, `Analizowanie 0/${toClassify.length}…`);
   setText(anonymizeBtns, 'Analizowanie...');
   refreshAnonymizeButton();
+  if (!desktopClassifyActive) {
+    desktopClassifyActive = true;
+    await setDesktopActiveWork('pii-anonymize', true);
+  }
   dispatchNextClassify();
 }));
 

@@ -28,6 +28,12 @@ function installToolDom() {
     <div id="webnn-hint" hidden>
       <button id="webnn-hint-trigger" type="button" aria-expanded="false"></button>
       <div id="webnn-hint-panel" hidden>
+        <div data-webnn-copy="browser" hidden>
+          <p>Enable <code>chrome://flags/#web-machine-learning-neural-network</code>.</p>
+        </div>
+        <div data-webnn-copy="desktop" hidden>
+          <p>WebNN is enabled by the desktop application.</p>
+        </div>
         <button id="webnn-hint-close" type="button"></button>
       </div>
     </div>
@@ -113,6 +119,16 @@ function clickAnonymize() {
   document.querySelector('[data-action="anonymize"]').click();
 }
 
+function enableGpuAndOpenWebnnHint() {
+  const allowGpu = document.querySelector('#allow-gpu-checkbox');
+  expect(allowGpu.checked).toBe(false);
+  allowGpu.checked = true;
+  allowGpu.dispatchEvent(new Event('change', { bubbles: true }));
+  expect(document.querySelector('#webnn-hint').hidden).toBe(false);
+  document.querySelector('#webnn-hint-trigger').click();
+  expect(document.querySelector('#webnn-hint-panel').hidden).toBe(false);
+}
+
 describe('worker boot failure (#34)', () => {
   beforeEach(() => {
     vi.restoreAllMocks();
@@ -169,5 +185,48 @@ describe('result status persistence (#41)', () => {
     const worker = await bootApp();
     worker.emit({ type: 'error', message: 'Coś się stało' });
     expect(modelStatusText()).toBe('Błąd: Coś się stało');
+  });
+});
+
+describe('WebNN hint copy', () => {
+  beforeEach(() => {
+    vi.restoreAllMocks();
+    localStorage.clear();
+    delete window.piiDesktop;
+    delete navigator.ml;
+    localStorage.setItem('pii.selected-entities', JSON.stringify(['PERSON_NAME']));
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+    localStorage.clear();
+    delete window.piiDesktop;
+    delete navigator.ml;
+  });
+
+  it('shows desktop guidance without Chrome flags in Electron mode', async () => {
+    window.piiDesktop = { platform: 'darwin' };
+    await bootApp();
+
+    enableGpuAndOpenWebnnHint();
+
+    const browserCopy = document.querySelector('[data-webnn-copy="browser"]');
+    const desktopCopy = document.querySelector('[data-webnn-copy="desktop"]');
+    expect(browserCopy.hidden).toBe(true);
+    expect(desktopCopy.hidden).toBe(false);
+    expect(desktopCopy.textContent).toContain('WebNN is enabled by the desktop application.');
+    expect(desktopCopy.textContent).not.toContain('chrome://flags');
+  });
+
+  it('retains browser guidance outside Electron', async () => {
+    await bootApp();
+
+    enableGpuAndOpenWebnnHint();
+
+    const browserCopy = document.querySelector('[data-webnn-copy="browser"]');
+    expect(browserCopy.hidden).toBe(false);
+    expect(browserCopy.textContent)
+      .toContain('chrome://flags/#web-machine-learning-neural-network');
+    expect(document.querySelector('[data-webnn-copy="desktop"]').hidden).toBe(true);
   });
 });
