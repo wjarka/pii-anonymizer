@@ -23,13 +23,16 @@ jobs:
         include:
           - label: mac-x64
             os: macos-15-intel
-            command: npm run electron:dist:mac:x64
+            command: npm run electron:build-renderer && npm run electron:stage && npx electron-builder --mac dmg zip --x64 --config electron-builder-ci.yml
+            appPath: release/desktop/mac/pii.tools.app
           - label: mac-arm64
             os: macos-15
-            command: npm run electron:dist:mac:arm64
+            command: npm run electron:build-renderer && npm run electron:stage && npx electron-builder --mac dmg zip --arm64 --config electron-builder-ci.yml
+            appPath: release/desktop/mac-arm64/pii.tools.app
           - label: win-x64
             os: windows-latest
             command: npm run electron:dist:win
+            appPath: ''
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
@@ -38,8 +41,10 @@ jobs:
           node-version: 20
           cache: npm
       - run: npm ci
-      - run: npm test -- electron/protocol.test.js scripts/prepare-electron-app.test.js src/desktop-active-work.test.js
+      - run: npm test -- electron/protocol.test.js scripts/prepare-electron-app.test.js src/desktop-active-work.test.js scripts/electron-release-signing.test.js
       - run: ${{ matrix.command }}
+      - if: runner.os == 'macOS'
+        run: codesign --verify --deep --strict --verbose=4 "${{ matrix.appPath }}"
       - uses: actions/upload-artifact@v4
         with:
           name: desktop-${{ matrix.label }}
