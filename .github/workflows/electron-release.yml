@@ -69,7 +69,7 @@ jobs:
 
           These early desktop builds are unsigned. macOS may require right-click -> Open on first launch. Windows SmartScreen may warn about an unknown publisher; continue only when the file came from this GitHub Release.
 
-          First use may download NER/OCR models. Later launches reuse the local application cache unless the user clears app data/cache.
+          First use may download NER models and runtime components. OCR models are bundled with the desktop application. Later launches reuse the local application cache unless the user clears app data/cache.
           NOTES
       - name: Publish release
         env:
