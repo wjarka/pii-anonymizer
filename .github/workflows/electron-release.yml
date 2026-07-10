@@ -76,7 +76,7 @@ jobs:
           - Windows installer: `pii-tools-*-win-x64-setup.exe`
           - Windows portable: `pii-tools-*-win-x64-portable.exe`
 
-          These early desktop builds are unsigned. macOS may require right-click -> Open on first launch. Windows SmartScreen may warn about an unknown publisher; continue only when the file came from this GitHub Release.
+          macOS builds are ad-hoc signed for bundle integrity, but are not Developer ID signed or notarized. Windows builds are unsigned. macOS may require right-click -> Open on first launch. Windows SmartScreen may warn about an unknown publisher; continue only when the file came from this GitHub Release.
 
           First use may download NER models and runtime components. OCR models are bundled with the desktop application. Later launches reuse the local application cache unless the user clears app data/cache.
           NOTES
