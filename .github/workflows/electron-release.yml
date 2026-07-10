@@ -43,7 +43,11 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: desktop-${{ matrix.label }}
-          path: release/desktop/*
+          path: |
+            release/desktop/*.dmg
+            release/desktop/*.zip
+            release/desktop/*-setup.exe
+            release/desktop/*-portable.exe
           if-no-files-found: error
 
   release:
